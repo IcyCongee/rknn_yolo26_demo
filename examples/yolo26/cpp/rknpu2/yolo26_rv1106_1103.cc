@@ -11,16 +11,18 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
+#include <sys/time.h>
 #include "yolo26.h"
 #include "common.h"
 #include "file_utils.h"
 #include "image_utils.h"
+
+static double __get_us(struct timeval t) { return (t.tv_sec * 1000000 + t.tv_usec); }
 
 static void dump_tensor_attr(rknn_tensor_attr *attr)
 {
@@ -221,14 +223,22 @@ int inference_yolo26_model(rknn_app_context_t *app_ctx, image_buffer_t *img, obj
 
     // Run
     printf("rknn_run\n");
+    struct timeval start_time, stop_time;
+    gettimeofday(&start_time, NULL);
     ret = rknn_run(app_ctx->rknn_ctx, nullptr);
+    gettimeofday(&stop_time, NULL);
+    app_ctx->inference_time_ms = (__get_us(stop_time) - __get_us(start_time)) / 1000;
+
     if (ret < 0) {
         printf("rknn_run fail! ret=%d\n", ret);
         return -1;
     }
 
     // Post Process
+    gettimeofday(&start_time, NULL);
     post_process(app_ctx, app_ctx->output_mems, &letter_box, box_conf_threshold, nms_threshold, od_results);
+    gettimeofday(&stop_time, NULL);
+    app_ctx->post_process_time_ms = (__get_us(stop_time) - __get_us(start_time)) / 1000;
 out:
     return ret;
 }
