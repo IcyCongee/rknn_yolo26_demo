@@ -1,7 +1,7 @@
 import sys
 from rknn.api import RKNN
 
-DATASET_PATH = '../../../datasets/uav/dataset_path.txt'
+DATASET_PATH = '../../../datasets/COCO/coco_subset_20.txt'
 DEFAULT_RKNN_PATH = '../model/yolo26.rknn'
 DEFAULT_QUANT = True
 
