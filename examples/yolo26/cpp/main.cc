@@ -87,6 +87,9 @@ int main(int argc, char **argv)
         goto out;
     }
 
+    printf("inference_yolo26_model use: inference time: %.2f ms, post process time: %.2f ms\n",
+           rknn_app_ctx.inference_time_ms, rknn_app_ctx.post_process_time_ms);
+
     // 画框和概率
     char text[256];
     for (int i = 0; i < od_results.count; i++)
